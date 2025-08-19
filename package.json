@@ -1,14 +1,26 @@
 {
   "name": "data-localizer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "A simple utility to localize JSON data fields between ar/en based on headers.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "localization",
+    "i18n",
+    "json",
+    "data",
+    "ar",
+    "en"
+  ],
+  "author": "elrefai99",
+  "license": "MIT",
   "packageManager": "pnpm@10.6.5",
   "dependencies": {
     "@types/node": "^24.3.0",

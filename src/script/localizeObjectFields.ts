@@ -1,5 +1,8 @@
+import { langJSON } from "../lang/lang";
+
 export function localizeObjectFields(data: any, langHeader: string, fallbackLang: string = 'en'): any {
-     const preferredLang = langHeader?.split(',')[0]?.toLowerCase().trim() === 'ar' ? 'ar' : 'en';
+     const langCode = langHeader?.split(',')[0]?.toLowerCase().trim().split('-')[0];
+     const preferredLang = langJSON.includes(langCode) ? langCode : fallbackLang;
 
      const localize = (obj: any): any => {
           if (Array.isArray(obj)) {
@@ -7,7 +10,6 @@ export function localizeObjectFields(data: any, langHeader: string, fallbackLang
           }
 
           if (obj && typeof obj === 'object') {
-               // Check if it's a localized value
                if ('ar' in obj || 'en' in obj) {
                     return obj[preferredLang] || obj[fallbackLang] || '';
                }

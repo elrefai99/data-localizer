@@ -1,96 +1,80 @@
 # 📦 data-localizer
 
-A lightweight utility to localize JSON objects and arrays between Arabic (`ar`) and English (`en`) fields based on a language header.  
-Perfect for APIs and backends that store multilingual data inside objects like:
-
-```json
-{
-  "title": { "ar": "مرحبا", "en": "Hello" }
-}
-```
+A lightweight utility to localize JSON objects and arrays using language fields (e.g. `{"ar": "...", "en": "..."}`) and an HTTP language header.  
+Works out of the box with **ISO 639-1** language codes (e.g., `en`, `ar`, `fr`, …) and safely falls back when a language isn’t supported.
 
 ---
 
 ## 🚀 Installation
 
-Install using **npm**:
-
 ```bash
 npm install data-localizer
-```
-
-Or using **pnpm**:
-
-```bash
+# or
 pnpm add data-localizer
 ```
 
 ---
 
-## 🛠 Usage
+## ✨ Features
 
-### Example with Array
-
-```ts
-import { localizeDatas } from "data-localizer";
-
-const data = [
-  { title: { ar: "مرحبا", en: "Hello" } },
-  { title: { ar: "عالم", en: "World" } }
-];
-
-console.log(localizeDatas(data, "ar"));
-// => [ { title: "مرحبا" }, { title: "عالم" } ]
-
-console.log(localizeDatas(data, "en"));
-// => [ { title: "Hello" }, { title: "World" } ]
-```
+- ✅ Localize **objects and arrays** recursively  
+- 🌍 Validates `Accept-Language` against an ISO 639-1 list (`langJSON`)  
+- 🔁 **Fallback** language when preferred language is missing/unsupported  
+- 🧠 Auto-strips region parts: `en-US` → `en`, `fr-CA` → `fr`  
+- 🔒 Zero dependencies, TypeScript-first  
 
 ---
 
-### Example with Single Object
+## 🧩 Quick Start
 
+### Example with Arrays
+```ts
+import { localizeDatas } from "data-localizer";
+
+const items = [
+  { title: { ar: "مرحبا", en: "Hello" } },
+  { title: { ar: "عالم",  en: "World" } }
+];
+
+localizeDatas(items, "ar");
+// => [ { title: "مرحبا" }, { title: "عالم" } ]
+
+localizeDatas(items, "en");
+// => [ { title: "Hello" }, { title: "World" } ]
+```
+
+### Example with Objects
 ```ts
 import { localizeDatas } from "data-localizer";
 
 const user = {
   name: { ar: "محمد", en: "Mohamed" },
-  age: 28
+  age: 30
 };
 
-console.log(localizeDatas(user, "ar"));
-// => { name: "محمد", age: 28 }
+localizeDatas(user, "ar");
+// => { name: "محمد", age: 30 }
 
-console.log(localizeDatas(user, "en"));
-// => { name: "Mohamed", age: 28 }
+localizeDatas(user, "en");
+// => { name: "Mohamed", age: 30 }
 ```
 
----
+### Example with Nested Structures
+```ts
+import { localizeObjectFields } from "data-localizer";
 
-## ⚙️ API
+const payload = {
+  post: {
+    title: { ar: "عنوان", en: "Title" },
+    meta: {
+      description: { ar: "وصف", en: "Description" }
+    }
+  }
+};
 
-### `localizeDatas<T>(data: T, langHeader: string, fallbackLang?: string): T`
+localizeObjectFields(payload, "ar");
+// => { post: { title: "عنوان", meta: { description: "وصف" } } }
 
-#### Parameters:
-- **`data`**: `object | object[]`  
-  The data you want to localize (can be a single object or an array of objects).  
-
-- **`langHeader`**: `string`  
-  The language header (usually from HTTP request headers like `Accept-Language`).  
-  - If `langHeader` starts with `"ar"`, Arabic will be used.  
-  - Otherwise, English will be used.  
-
-- **`fallbackLang`** *(optional)*: `string` (default: `"en"`)  
-  The fallback language in case the preferred language value is missing.  
-
-#### Returns:
-- A new object or array of objects with localized values.
-
----
-
-## 🌍 Why use data-localizer?
-
-- 🔑 **Simple & Lightweight** → No heavy dependencies.  
-- 🌐 **Multi-language ready** → Works out of the box for `ar/en`, and extendable for other languages.  
-- ⚡ **API-friendly** → Great for backends that serve localized content.  
-- 💡 **TypeScript support**
+localizeObjectFields(payload, "en");
+// => { post: { title: "Title", meta: { description: "Description" } } }
+```

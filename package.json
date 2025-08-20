@@ -1,6 +1,6 @@
 {
   "name": "data-localizer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple utility to localize JSON data fields between ar/en based on headers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

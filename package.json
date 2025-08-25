@@ -1,6 +1,6 @@
 {
   "name": "data-localizer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple utility to localize JSON data fields between ar/en based on headers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,13 @@
     "ar",
     "en"
   ],
-  "author": "elrefai99",
+  "author": "elrefai99 <elrefai99@gmail.com>",
+  "homepage": "https://github.com/elrefai99/data-localizer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elrefai99/data-localizer.git"
+  },
+  "bugs": "https://github.com/elrefai99/data-localizer/issues",
   "license": "MIT",
   "packageManager": "pnpm@10.6.5",
   "dependencies": {

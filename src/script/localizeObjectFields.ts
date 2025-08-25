@@ -1,10 +1,11 @@
+import { AnyObject } from "../@types";
 import { langJSON } from "../lang/lang";
 
-export function localizeObjectFields(data: any, langHeader: string, fallbackLang: string = 'en'): any {
+export function localizeObjectFields<T extends AnyObject | AnyObject[]>(data: T, langHeader: string, fallbackLang: string = 'en'): T {
      const langCode = langHeader?.split(',')[0]?.toLowerCase().trim().split('-')[0];
      const preferredLang = langJSON.includes(langCode) ? langCode : fallbackLang;
 
-     const localize = (obj: any): any => {
+     const localize = (obj: AnyObject): AnyObject => {
           if (Array.isArray(obj)) {
                return obj.map(localize);
           }
@@ -14,7 +15,7 @@ export function localizeObjectFields(data: any, langHeader: string, fallbackLang
                     return obj[preferredLang] || obj[fallbackLang] || '';
                }
 
-               const result: any = {};
+               const result: AnyObject = {};
                for (const key in obj) {
                     result[key] = localize(obj[key]);
                }
@@ -24,5 +25,5 @@ export function localizeObjectFields(data: any, langHeader: string, fallbackLang
           return obj;
      };
 
-     return localize(data);
+     return localize(data) as T;
 }

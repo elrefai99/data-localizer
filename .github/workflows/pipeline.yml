@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - "**"
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -11,6 +16,9 @@ jobs:
     secrets: inherit
 
   release:
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: check
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     secrets: inherit

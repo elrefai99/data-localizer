@@ -1,7 +1,9 @@
 name: Check Build TypeScript Project
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - "**"
 
 jobs:
   build:

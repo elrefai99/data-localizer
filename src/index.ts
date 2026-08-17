@@ -1,2 +1,2 @@
-export { localizeObjectFields } from "./script/localizeObjectFields";
-export { localizeDatas } from "./script/localizeDatas";
+export * from "./script/localizeObjectFields";
+export * from "./script/localizeDatas";

@@ -1,11 +1,11 @@
-# 📦 data-localizer
+# data-localizer
 
 A lightweight utility to localize JSON objects and arrays using language fields (e.g. `{"ar": "...", "en": "..."}`) and an HTTP language header.  
 Works out of the box with **ISO 639-1** language codes (e.g., `en`, `ar`, `fr`, …) and safely falls back when a language isn’t supported.
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ```bash
 npm install data-localizer
@@ -15,17 +15,17 @@ pnpm add data-localizer
 
 ---
 
-## ✨ Features
+## Features
 
-- ✅ Localize **objects and arrays** recursively  
-- 🌍 Validates `Accept-Language` against an ISO 639-1 list (`langJSON`)  
-- 🔁 **Fallback** language when preferred language is missing/unsupported  
-- 🧠 Auto-strips region parts: `en-US` → `en`, `fr-CA` → `fr`  
-- 🔒 Zero dependencies, TypeScript-first  
+- Localize **objects and arrays** recursively  
+- Validates `Accept-Language` against an ISO 639-1 list (`langJSON`)  
+- **Fallback** language when preferred language is missing/unsupported  
+- Auto-strips region parts: `en-US` → `en`, `fr-CA` → `fr`  
+- Zero dependencies, TypeScript-first  
 
 ---
 
-## 🧩 Quick Start
+## Quick Start
 
 ### Example with Arrays
 ```ts

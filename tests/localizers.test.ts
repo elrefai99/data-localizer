@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { localizeDatas, localizeObjectFields } from "../src";
+import { localize } from "../packages";
 
 const localizers = [
-  ["localizeDatas", localizeDatas],
-  ["localizeObjectFields", localizeObjectFields],
+  ["localizeDatas", localize],
 ] as const;
 
 describe.each(localizers)("%s", (_name, localize) => {
@@ -83,14 +82,8 @@ describe.each(localizers)("%s", (_name, localize) => {
 
 describe("nullish translation behavior", () => {
   it("localizeDatas preserves an empty preferred translation", () => {
-    expect(localizeDatas({ title: { ar: "", en: "Title" } }, "ar")).toEqual({
+    expect(localize({ title: { ar: "", en: "Title" } }, "ar")).toEqual({
       title: "",
     });
-  });
-
-  it("localizeObjectFields falls back from an empty preferred translation", () => {
-    expect(
-      localizeObjectFields({ title: { ar: "", en: "Title" } }, "ar"),
-    ).toEqual({ title: "Title" });
   });
 });

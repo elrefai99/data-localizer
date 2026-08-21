@@ -8,6 +8,6 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "packages",
   ]
 }

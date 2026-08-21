@@ -8,7 +8,7 @@ export default defineConfig({
     },
     globals: true,
     environment: 'node',
-    include: ["src/**/*.{test,spec}.ts", "tests/**/*.{test,spec}.ts"],
+    include: ["packages/**/*.{test,spec}.ts", "tests/**/*.{test,spec}.ts"],
     clearMocks: true,
     restoreMocks: true,
     coverage: {
@@ -17,5 +17,5 @@ export default defineConfig({
       exclude: ['tests/**/*.d.ts'],
     },
   },
-  resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+  resolve: { alias: { "@": path.resolve(__dirname, "packages") } },
 })

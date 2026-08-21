@@ -6,7 +6,10 @@
           "noEmit": true
      },
      "include": [
-          "src/**/*",
-          "tests/**/*"
+          "packages/**/*",
+     ],
+     "exclude": [
+          "node_modules",
+          "dist"
      ]
 }

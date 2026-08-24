@@ -13,19 +13,19 @@ export interface RequestAdapterOptions<TRequest = unknown> extends LocalizerOpti
   getLanguageHeader?: (request: TRequest) => string | undefined;
 }
 
-export interface RequestLocalizer {
+export interface RequestLocalizer<TRequest = RequestLike> {
   localize<TOutput = unknown>(
     data: JsonValue,
-    requestOrLanguage?: RequestLike,
+    requestOrLanguage?: TRequest | string,
   ): TOutput;
   forRequest(
-    request: unknown,
+    request: TRequest,
   ): <TOutput = unknown>(data: JsonValue, languageHeader?: string) => TOutput;
-  languageFor(request: unknown): string;
+  languageFor(request: TRequest): string;
 }
 
 export declare function getAcceptLanguage(request: RequestLike): string;
 
-export declare function createRequestLocalizer(
-  options?: RequestAdapterOptions<unknown>,
-): RequestLocalizer;
+export declare function createRequestLocalizer<TRequest = RequestLike>(
+  options?: RequestAdapterOptions<TRequest>,
+): RequestLocalizer<TRequest>;

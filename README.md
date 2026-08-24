@@ -1,193 +1,114 @@
 # data-localizer
 
-`data-localizer` is a dependency-free Go library and CLI for recursively
-localizing JSON-compatible data. It resolves objects such as
-`{"en":"Hello","ar":"مرحبا"}` using an `Accept-Language` value.
+Localize language-keyed JSON data in Node.js applications using an
+`Accept-Language` value. The package supports TypeScript, JavaScript ESM, and
+CommonJS on Node.js 18 or newer.
 
-It performs no network requests and does not call any external API.
+It performs no network requests and has no required npm dependencies.
 
-The repository also builds an npm package. Its localization logic is the same
-Go code compiled to WebAssembly; JavaScript only provides the Node.js wrapper.
-
-## Install
+## Installation
 
 ```bash
-go get github.com/elrefai99/data-localizer
+pnpm install data-localizer
 ```
 
-The module requires Go 1.22 or newer and uses only the standard library.
-
-## Library usage
-
-```go
-package main
-
-import (
-	"fmt"
-	"log"
-
-	localizer "github.com/elrefai99/data-localizer"
-)
-
-func main() {
-	data := map[string]any{
-		"title": map[string]any{
-			"en": "Coffee",
-			"ar": "قهوة",
-		},
-	}
-
-	result, err := localizer.Localize(data, "ar-EG, en;q=0.8")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%v\n", result)
-	// map[title:قهوة]
-}
-```
-
-`Localize` uses English as its fallback. A third argument changes it:
-
-```go
-result, err := localizer.Localize(data, "unknown", "ar")
-```
-
-## Configured localizer
-
-Create one reusable localizer when the application has a known language set or
-needs an explicit missing-value policy:
-
-```go
-engine, err := localizer.New(localizer.Options{
-	SupportedLanguages: []string{"en", "ar", "fr", "fr-CA"},
-	FallbackLanguage:   "en",
-	FallbackLanguages:  []string{"fr"},
-	MissingTranslation: localizer.MissingPreserve,
-})
-if err != nil {
-	log.Fatal(err)
-}
-
-result, err := engine.Localize(data, "fr-CA,fr;q=0.9,en;q=0.8")
-```
-
-Available policies are `MissingPreserve`, `MissingEmpty`, `MissingNull`, and
-`MissingError`. Custom detection and missing handlers are available through
-`Options.IsTranslationMap` and `Options.OnMissing`.
-
-The engine:
-
-- parses quality values and regional language tags;
-- keeps valid empty strings, `false`, and zero translations;
-- recursively copies maps, slices, and arrays without mutating the input;
-- treats only supported-language scalar maps as translations by default;
-- preserves structs and other non-JSON values unchanged;
-- returns `CycleError` for cyclic maps or slices.
-
-## CLI
-
-Build the command:
-
-```bash
-go build -o bin/data-localizer ./cmd/data-localizer
-```
-
-Read JSON from stdin:
-
-```bash
-echo '{"title":{"en":"Hello","ar":"مرحبا"}}' |
-  ./bin/data-localizer -lang 'ar-EG, en;q=0.8' -pretty
-```
-
-Or pass a file:
-
-```bash
-./bin/data-localizer -lang fr -fallback en input.json
-```
-
-CLI flags:
-
-- `-lang`: an `Accept-Language` value;
-- `-fallback`: the primary fallback language (default `en`);
-- `-supported`: optional comma-separated language list;
-- `-missing`: `preserve`, `empty`, `null`, or `error`;
-- `-pretty`: pretty-print output JSON.
-
-## npm package
-
-Build the JavaScript wrapper, TypeScript declarations, and Go WebAssembly
-binary:
-
-```bash
-npm run build
-```
-
-Use it from JavaScript or TypeScript with the familiar synchronous API:
+## TypeScript and JavaScript ESM
 
 ```ts
-import { localize, createLocalizer } from "data-localizer";
+import { localize } from "data-localizer";
+
+const product = {
+  id: 42,
+  title: {
+    en: "Coffee",
+    ar: "قهوة",
+  },
+};
+
+const result = localize(product, "ar-EG,en;q=0.8");
+// { id: 42, title: "قهوة" }
+```
+
+## CommonJS JavaScript
+
+```js
+const { localize } = require("data-localizer");
 
 const result = localize(
   { title: { en: "Coffee", ar: "قهوة" } },
-  "ar-EG,en;q=0.8",
+  "ar",
 );
-// { title: "قهوة" }
+```
 
-const engine = createLocalizer({
-  supportedLanguages: ["en", "ar"],
+## Configuration
+
+Create a reusable localizer for an application with a known language set:
+
+```ts
+import { createLocalizer } from "data-localizer";
+
+const localizer = createLocalizer({
+  supportedLanguages: ["en", "ar", "fr"],
   fallbackLanguage: "en",
+  fallbackLanguages: ["fr"],
   missingTranslation: "preserve",
 });
+
+const result = localizer.localize(data, "fr-CA,fr;q=0.9,en;q=0.8");
 ```
 
-Create and inspect the archive before publishing:
+Missing-translation policies:
+
+- `preserve`: keep the original translation object.
+- `empty`: return an empty string.
+- `null`: return `null`.
+- `error`: throw `MissingTranslationError`.
+
+Empty strings, `false`, and zero are treated as valid translations. Input data
+is not mutated.
+
+## Express
+
+Install Express normally, then register the adapter:
 
 ```bash
-npm pack --dry-run
-npm publish
+pnpm install express data-localizer
 ```
 
-The published package has no npm dependencies. It targets Node.js 18 or newer
-and contains `index.js`, `index.d.ts`, the Go runtime, and the compiled `.wasm`
-engine.
-
-### Publishing releases
-
-npm does not allow an existing version to be replaced. Update the version for
-every release, then publish manually:
-
-```bash
-npm login
-npm whoami
-npm version patch
-npm publish --access public
-git push origin main --follow-tags
-```
-
-The GitHub release workflow also runs automatically for pushes to `main` or
-`v2`. For token authentication, create a granular npm publish token and save it
-in the GitHub repository as the Actions secret `NPM_TOKEN`. The workflow tests
-the Go and npm builds, publishes only when the version is new, then creates the
-matching GitHub release tag.
-
-For tokenless publishing, configure npm Trusted Publishing for repository
-`elrefai99/data-localizer` and workflow filename `release.yml`. The workflow
-already grants the required OIDC permission.
-
-## Framework adapters
-
-Frameworks are optional peer dependencies. Install only the framework used by
-the application.
-
-### Express
+TypeScript or JavaScript ESM:
 
 ```ts
 import express from "express";
-import { expressLocalizer } from "data-localizer/express";
+import expressLocalizer from "data-localizer/express";
 
 const app = express();
+
 app.use(expressLocalizer({
   supportedLanguages: ["en", "ar"],
+  fallbackLanguage: "en",
+}));
+
+app.get("/product", (request, response) => {
+  response.json(request.localizeData({
+    title: { en: "Coffee", ar: "قهوة" },
+  }));
+});
+```
+
+CommonJS:
+
+```js
+const express = require("express");
+const expressLocalizer = require("data-localizer/express");
+
+const app = express();
+app.use(expressLocalizer({ fallbackLanguage: "en" }));
+```
+
+Automatic response localization is also available:
+
+```ts
+app.use(expressLocalizer({
   fallbackLanguage: "en",
   autoLocalizeResponse: true,
 }));
@@ -197,32 +118,7 @@ app.get("/product", (_request, response) => {
 });
 ```
 
-Without `autoLocalizeResponse`, call `request.localizeData(data)` explicitly.
-
-CommonJS JavaScript is also supported:
-
-```js
-const express = require("express");
-const expressLocalizer = require("data-localizer/express");
-
-const app = express();
-app.use(expressLocalizer({ fallbackLanguage: "en" }));
-
-app.get("/product", (request, response) => {
-  response.json(request.localizeData({
-    title: { en: "Coffee", ar: "قهوة" },
-  }));
-});
-```
-
-For JavaScript ESM, use the same default import shown in the TypeScript
-example. Named imports also work:
-
-```js
-import { expressLocalizer } from "data-localizer/express";
-```
-
-### NestJS
+## NestJS
 
 ```ts
 import { createNestInterceptor } from "data-localizer/nest";
@@ -233,9 +129,10 @@ app.useGlobalInterceptors(createNestInterceptor({
 }));
 ```
 
-`NestDataLocalizer` is also exported for use as a service or custom provider.
+`NestDataLocalizer` is also available for registration as a custom provider or
+for direct use in a service.
 
-### Fastify
+## Fastify
 
 ```ts
 import fastifyLocalizer from "data-localizer/fastify";
@@ -247,12 +144,12 @@ await app.register(fastifyLocalizer, {
 });
 ```
 
-Every Fastify request receives `request.localizeData(data)`.
+Every request receives `request.localizeData(data)`.
 
-### Koa
+## Koa
 
 ```ts
-import { koaLocalizer } from "data-localizer/koa";
+import koaLocalizer from "data-localizer/koa";
 
 app.use(koaLocalizer({
   fallbackLanguage: "en",
@@ -260,7 +157,11 @@ app.use(koaLocalizer({
 }));
 ```
 
-For other Node.js or TypeScript frameworks, use the neutral adapter:
+Every context receives `context.localizeData(data)`.
+
+## Other frameworks
+
+Use the framework-neutral request adapter:
 
 ```ts
 import { createRequestLocalizer } from "data-localizer/framework";
@@ -269,12 +170,13 @@ const adapter = createRequestLocalizer({ fallbackLanguage: "en" });
 const result = adapter.localize(data, request);
 ```
 
-## Development
+By default, the adapter reads `Accept-Language` from `request.headers`. A custom
+reader can be supplied when a framework stores it elsewhere:
 
-```bash
-go test ./...
-go vet ./...
-go build ./cmd/data-localizer
+```ts
+const adapter = createRequestLocalizer<{ locale?: string }>({
+  getLanguageHeader: (request) => request.locale,
+});
 ```
 
 ## License

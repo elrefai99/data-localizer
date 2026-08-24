@@ -30,5 +30,6 @@ function fastifyLocalizer(fastify, options = {}, done) {
   }
 }
 
-exports.fastifyLocalizer = fastifyLocalizer;
-exports.default = fastifyLocalizer;
+module.exports = fastifyLocalizer;
+module.exports.fastifyLocalizer = fastifyLocalizer;
+module.exports.default = fastifyLocalizer;

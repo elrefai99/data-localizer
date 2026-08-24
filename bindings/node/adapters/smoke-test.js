@@ -5,9 +5,8 @@ const {
   createRequestLocalizer,
   getAcceptLanguage,
 } = require("../../../dist/adapters/framework.js");
-const {
-  expressLocalizer,
-} = require("../../../dist/adapters/express.js");
+const expressModule = require("../../../dist/adapters/express.js");
+const { expressLocalizer } = expressModule;
 const {
   NestDataLocalizer,
 } = require("../../../dist/adapters/nest.js");
@@ -19,6 +18,8 @@ const { koaLocalizer } = require("../../../dist/adapters/koa.js");
 const data = { title: { en: "Hello", ar: "مرحبا" } };
 
 async function main() {
+  assert.equal(typeof expressModule, "function");
+  assert.equal(expressModule, expressLocalizer);
   assert.equal(
     getAcceptLanguage({ headers: { "Accept-Language": ["ar", "en;q=0.8"] } }),
     "ar,en;q=0.8",

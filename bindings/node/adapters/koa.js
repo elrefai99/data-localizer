@@ -15,5 +15,6 @@ function koaLocalizer(options = {}) {
   };
 }
 
-exports.koaLocalizer = koaLocalizer;
-exports.default = koaLocalizer;
+module.exports = koaLocalizer;
+module.exports.koaLocalizer = koaLocalizer;
+module.exports.default = koaLocalizer;

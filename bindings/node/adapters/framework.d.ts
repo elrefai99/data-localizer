@@ -9,8 +9,8 @@ export type RequestLike =
       get?(name: string): string | undefined;
     };
 
-export interface RequestAdapterOptions extends LocalizerOptions {
-  getLanguageHeader?: (request: unknown) => string | undefined;
+export interface RequestAdapterOptions<TRequest = unknown> extends LocalizerOptions {
+  getLanguageHeader?: (request: TRequest) => string | undefined;
 }
 
 export interface RequestLocalizer {
@@ -27,5 +27,5 @@ export interface RequestLocalizer {
 export declare function getAcceptLanguage(request: RequestLike): string;
 
 export declare function createRequestLocalizer(
-  options?: RequestAdapterOptions,
+  options?: RequestAdapterOptions<unknown>,
 ): RequestLocalizer;

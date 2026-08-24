@@ -2,7 +2,7 @@ import type { Request, RequestHandler } from "express";
 import type { JsonValue } from "../index";
 import type { RequestAdapterOptions } from "./framework";
 
-export interface ExpressLocalizerOptions extends RequestAdapterOptions {
+export interface ExpressLocalizerOptions extends RequestAdapterOptions<Request> {
   autoLocalizeResponse?: boolean;
   getLanguageHeader?: (request: Request) => string | undefined;
 }

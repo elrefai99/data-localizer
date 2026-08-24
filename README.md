@@ -176,6 +176,29 @@ app.get("/product", (_request, response) => {
 
 Without `autoLocalizeResponse`, call `request.localizeData(data)` explicitly.
 
+CommonJS JavaScript is also supported:
+
+```js
+const express = require("express");
+const expressLocalizer = require("data-localizer/express");
+
+const app = express();
+app.use(expressLocalizer({ fallbackLanguage: "en" }));
+
+app.get("/product", (request, response) => {
+  response.json(request.localizeData({
+    title: { en: "Coffee", ar: "قهوة" },
+  }));
+});
+```
+
+For JavaScript ESM, use the same default import shown in the TypeScript
+example. Named imports also work:
+
+```js
+import { expressLocalizer } from "data-localizer/express";
+```
+
 ### NestJS
 
 ```ts

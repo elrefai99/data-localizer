@@ -1,91 +1,50 @@
-name: Publish Go and npm Release
+name: Auto Release from Package Version
 
 on:
   push:
     branches:
       - main
-      - v2
   workflow_dispatch:
 
 permissions:
   contents: write
-  id-token: write
 
 concurrency:
-  group: publish-${{ github.repository }}
+  group: auto-release
   cancel-in-progress: false
 
 jobs:
   release:
-    if: github.repository == 'elrefai99/data-localizer'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-
-      - name: Setup Node.js and npm registry
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          registry-url: "https://registry.npmjs.org/"
-          package-manager-cache: false
-
-      - name: Read release version
-        id: release
+      - name: Read package version
+        id: version
         shell: bash
         run: |
-          set -euo pipefail
-          PACKAGE_NAME="$(node -p "require('./package.json').name")"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          TAG="v${PACKAGE_VERSION}"
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v${VERSION}"
 
-          if [[ ! "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::package.json contains an invalid release version: ${PACKAGE_VERSION}"
-            exit 1
-          fi
-
-          echo "name=${PACKAGE_NAME}" >> "$GITHUB_OUTPUT"
-          echo "version=${PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
-          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
-            echo "published=true" >> "$GITHUB_OUTPUT"
-            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} already exists on npm; publish will be skipped."
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "${TAG} already exists; no release is needed."
           else
-            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Creating release ${TAG}."
           fi
 
-      - name: Test Go and npm package
-        run: |
-          go vet ./...
-          go test -race ./...
-          npm test
-          npm pack --dry-run
-
-      - name: Publish public npm package
-        if: steps.release.outputs.published == 'false'
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.release.outputs.tag }}
-        run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "GitHub release ${RELEASE_TAG} already exists; creation will be skipped."
-          else
-            gh release create "$RELEASE_TAG" \
-              --target "$GITHUB_SHA" \
-              --title "$RELEASE_TAG" \
-              --generate-notes
-          fi
+      - name: Create GitHub Release
+        if: steps.version.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true

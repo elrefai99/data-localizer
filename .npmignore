@@ -1,3 +1,13 @@
 node_modules
-src
-tests
+.gocache
+.gomodcache
+.gotelemetry
+.npm-cache
+bin
+bindings
+cmd
+docs
+tools
+*.go
+go.mod
+go.sum

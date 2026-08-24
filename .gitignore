@@ -1,3 +1,12 @@
-node_modules
+/bin/
 dist
-.pnpm-store
+/.gocache/
+/.gomodcache/
+/.gotelemetry/
+/.npm-cache/
+/coverage.out
+*.exe
+*.test
+docs
+node_modules
+*.npm-cache

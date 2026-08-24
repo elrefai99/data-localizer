@@ -2,7 +2,7 @@ import type { FastifyPluginCallback, FastifyRequest } from "fastify";
 import type { JsonValue } from "../index";
 import type { RequestAdapterOptions } from "./framework";
 
-export interface FastifyLocalizerOptions extends RequestAdapterOptions {
+export interface FastifyLocalizerOptions extends RequestAdapterOptions<FastifyRequest> {
   autoLocalizeResponse?: boolean;
   getLanguageHeader?: (request: FastifyRequest) => string | undefined;
 }

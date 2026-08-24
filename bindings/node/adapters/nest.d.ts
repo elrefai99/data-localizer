@@ -13,7 +13,7 @@ export type RequestLocalizeFunction = <TOutput = unknown>(
 ) => TOutput;
 
 export declare class NestDataLocalizer {
-  constructor(options?: RequestAdapterOptions);
+  constructor(options?: RequestAdapterOptions<unknown>);
   localize<TOutput = unknown>(
     data: JsonValue,
     languageHeader?: string,
@@ -22,10 +22,10 @@ export declare class NestDataLocalizer {
 }
 
 export declare class DataLocalizerInterceptor implements NestInterceptor {
-  constructor(options?: RequestAdapterOptions);
+  constructor(options?: RequestAdapterOptions<unknown>);
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown>;
 }
 
 export declare function createNestInterceptor(
-  options?: RequestAdapterOptions,
+  options?: RequestAdapterOptions<unknown>,
 ): DataLocalizerInterceptor;

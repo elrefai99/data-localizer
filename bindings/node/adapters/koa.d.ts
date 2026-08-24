@@ -2,7 +2,7 @@ import Koa = require("koa");
 import type { JsonValue } from "../index";
 import type { RequestAdapterOptions } from "./framework";
 
-export interface KoaLocalizerOptions extends RequestAdapterOptions {
+export interface KoaLocalizerOptions extends RequestAdapterOptions<Koa.Request> {
   autoLocalizeResponse?: boolean;
   getLanguageHeader?: (request: Koa.Request) => string | undefined;
 }

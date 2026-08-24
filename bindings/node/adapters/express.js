@@ -17,5 +17,6 @@ function expressLocalizer(options = {}) {
   };
 }
 
-exports.expressLocalizer = expressLocalizer;
-exports.default = expressLocalizer;
+module.exports = expressLocalizer;
+module.exports.expressLocalizer = expressLocalizer;
+module.exports.default = expressLocalizer;

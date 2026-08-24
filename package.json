@@ -39,10 +39,15 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "go run ./tools/buildnpm",
     "test": "go test ./... && npm run build && node bindings/node/smoke-test.js && node bindings/node/adapters/smoke-test.js && node bindings/node/adapters/module-smoke-test.mjs",
-    "prepack": "npm test"
+    "prepack": "npm test",
+    "publish:public": "npm publish --access public"
   },
   "engines": {
     "node": ">=18"

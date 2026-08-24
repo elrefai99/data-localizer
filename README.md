@@ -151,6 +151,29 @@ The published package has no npm dependencies. It targets Node.js 18 or newer
 and contains `index.js`, `index.d.ts`, the Go runtime, and the compiled `.wasm`
 engine.
 
+### Publishing releases
+
+npm does not allow an existing version to be replaced. Update the version for
+every release, then publish manually:
+
+```bash
+npm login
+npm whoami
+npm version patch
+npm publish --access public
+git push origin main --follow-tags
+```
+
+The GitHub release workflow also runs automatically for pushes to `main` or
+`v2`. For token authentication, create a granular npm publish token and save it
+in the GitHub repository as the Actions secret `NPM_TOKEN`. The workflow tests
+the Go and npm builds, publishes only when the version is new, then creates the
+matching GitHub release tag.
+
+For tokenless publishing, configure npm Trusted Publishing for repository
+`elrefai99/data-localizer` and workflow filename `release.yml`. The workflow
+already grants the required OIDC permission.
+
 ## Framework adapters
 
 Frameworks are optional peer dependencies. Install only the framework used by

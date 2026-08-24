@@ -1,26 +1,104 @@
 {
   "name": "data-localizer",
-  "version": "0.1.4",
-  "description": "A simple utility to localize JSON data fields between ar/en based on headers.",
+  "version": "0.2.4",
+  "description": "Dependency-free JSON data localization powered by Go WebAssembly.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./framework": {
+      "types": "./dist/adapters/framework.d.ts",
+      "require": "./dist/adapters/framework.js",
+      "default": "./dist/adapters/framework.js"
+    },
+    "./express": {
+      "types": "./dist/adapters/express.d.ts",
+      "require": "./dist/adapters/express.js",
+      "default": "./dist/adapters/express.js"
+    },
+    "./nest": {
+      "types": "./dist/adapters/nest.d.ts",
+      "require": "./dist/adapters/nest.js",
+      "default": "./dist/adapters/nest.js"
+    },
+    "./fastify": {
+      "types": "./dist/adapters/fastify.d.ts",
+      "require": "./dist/adapters/fastify.js",
+      "default": "./dist/adapters/fastify.js"
+    },
+    "./koa": {
+      "types": "./dist/adapters/koa.d.ts",
+      "require": "./dist/adapters/koa.js",
+      "default": "./dist/adapters/koa.js"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "gen:app": "gen-import --map --app-config",
-    "prepublishOnly": "npm run build"
+    "build": "go run ./tools/buildnpm",
+    "test": "go test ./... && npm run build && node bindings/node/smoke-test.js && node bindings/node/adapters/smoke-test.js",
+    "prepack": "npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@nestjs/common": ">=9",
+    "express": ">=4",
+    "fastify": ">=4",
+    "koa": ">=2",
+    "rxjs": ">=7"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "koa": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "framework": [
+        "dist/adapters/framework.d.ts"
+      ],
+      "express": [
+        "dist/adapters/express.d.ts"
+      ],
+      "nest": [
+        "dist/adapters/nest.d.ts"
+      ],
+      "fastify": [
+        "dist/adapters/fastify.d.ts"
+      ],
+      "koa": [
+        "dist/adapters/koa.d.ts"
+      ],
+      "*": [
+        "dist/index.d.ts"
+      ]
+    }
   },
   "keywords": [
     "localization",
     "i18n",
     "json",
-    "data",
-    "ar",
-    "en"
+    "golang",
+    "webassembly"
   ],
   "author": "elrefai99 <elrefai99@gmail.com>",
   "homepage": "https://github.com/elrefai99/data-localizer#readme",
@@ -29,15 +107,5 @@
     "url": "git+https://github.com/elrefai99/data-localizer.git"
   },
   "bugs": "https://github.com/elrefai99/data-localizer/issues",
-  "license": "MIT",
-  "packageManager": "pnpm@10.6.5",
-  "dependencies": {
-    "@types/node": "^24.3.0",
-    "gen-import": "^2.1.11",
-    "ts-node": "^10.9.2",
-    "typescript": "^7.0.2"
-  },
-  "devDependencies": {
-    "vitest": "^4.1.10"
-  }
+  "license": "MIT"
 }

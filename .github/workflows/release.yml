@@ -1,50 +1,31 @@
-name: Auto Release from Package Version
+name: Verify Go Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
-concurrency:
-  group: auto-release
-  cancel-in-progress: false
-
 jobs:
-  release:
+  verify:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          fetch-depth: 0
+          go-version-file: go.mod
 
-      - name: Read package version
-        id: version
-        shell: bash
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          TAG="v${VERSION}"
-
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-
-          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "${TAG} already exists; no release is needed."
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "Creating release ${TAG}."
-          fi
-
-      - name: Create GitHub Release
-        if: steps.version.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          name: Release ${{ steps.version.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          generate_release_notes: true
+          node-version: "22"
+
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: go build ./cmd/data-localizer
+      - run: npm run build
+      - run: node bindings/node/smoke-test.js
+      - run: npm pack --dry-run

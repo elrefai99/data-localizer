@@ -4,18 +4,14 @@ const assert = require("node:assert/strict");
 const {
   createRequestLocalizer,
   getAcceptLanguage,
-} = require("../../../dist/adapters/framework.js");
-const expressModule = require("../../../dist/adapters/express.js");
+} = require("../../dist/adapters/framework.js");
+const expressModule = require("../../dist/adapters/express.js");
 const { expressLocalizer } = expressModule;
-const {
-  NestDataLocalizer,
-} = require("../../../dist/adapters/nest.js");
-const {
-  fastifyLocalizer,
-} = require("../../../dist/adapters/fastify.js");
-const { koaLocalizer } = require("../../../dist/adapters/koa.js");
+const { NestDataLocalizer } = require("../../dist/adapters/nest.js");
+const { fastifyLocalizer } = require("../../dist/adapters/fastify.js");
+const { koaLocalizer } = require("../../dist/adapters/koa.js");
 
-const data = { title: { en: "Hello", ar: "مرحبا" } };
+const data = { title: { en: "Hello", ar: "\u0645\u0631\u062d\u0628\u0627" } };
 
 async function main() {
   assert.equal(typeof expressModule, "function");
@@ -28,7 +24,7 @@ async function main() {
   const generic = createRequestLocalizer();
   assert.deepEqual(
     generic.localize(data, { headers: { "accept-language": "ar-EG" } }),
-    { title: "مرحبا" },
+    { title: "\u0645\u0631\u062d\u0628\u0627" },
   );
 
   let expressOutput;
@@ -44,13 +40,14 @@ async function main() {
     expressResponse,
     () => expressResponse.json(data),
   );
-  assert.deepEqual(expressOutput, { title: "مرحبا" });
+  assert.deepEqual(expressOutput, { title: "\u0645\u0631\u062d\u0628\u0627" });
   assert.deepEqual(expressRequest.localizeData(data, "en"), { title: "Hello" });
 
   const nest = new NestDataLocalizer();
-  assert.deepEqual(nest.forRequest({ headers: { "accept-language": "ar" } })(data), {
-    title: "مرحبا",
-  });
+  assert.deepEqual(
+    nest.forRequest({ headers: { "accept-language": "ar" } })(data),
+    { title: "\u0645\u0631\u062d\u0628\u0627" },
+  );
 
   let fastifyDecorator;
   let fastifyHook;
@@ -73,7 +70,7 @@ async function main() {
   await new Promise((resolve, reject) => {
     fastifyHook(fastifyRequest, {}, data, (error, result) => {
       if (error) return reject(error);
-      assert.deepEqual(result, { title: "مرحبا" });
+      assert.deepEqual(result, { title: "\u0645\u0631\u062d\u0628\u0627" });
       resolve();
     });
   });
@@ -83,7 +80,7 @@ async function main() {
     body: data,
   };
   await koaLocalizer({ autoLocalizeResponse: true })(koaContext, async () => {});
-  assert.deepEqual(koaContext.body, { title: "مرحبا" });
+  assert.deepEqual(koaContext.body, { title: "\u0645\u0631\u062d\u0628\u0627" });
 
   console.log("framework adapter smoke tests passed");
 }

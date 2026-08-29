@@ -27,5 +27,5 @@ jobs:
       - run: go test -race ./...
       - run: go build ./cmd/data-localizer
       - run: npm run build
-      - run: node bindings/node/smoke-test.js
+      - run: node tests/node/core-smoke-test.js
       - run: npm pack --dry-run

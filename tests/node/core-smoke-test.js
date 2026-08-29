@@ -8,15 +8,15 @@ const {
 } = require("../../dist/index.js");
 
 const input = {
-  title: { en: "Hello", ar: "مرحبا" },
-  items: [{ name: { en: "First", ar: "الأول" } }],
+  title: { en: "Hello", ar: "\u0645\u0631\u062d\u0628\u0627" },
+  items: [{ name: { en: "First", ar: "\u0627\u0644\u0623\u0648\u0644" } }],
 };
 
 assert.deepEqual(localize(input, "ar-EG,en;q=0.8"), {
-  title: "مرحبا",
-  items: [{ name: "الأول" }],
+  title: "\u0645\u0631\u062d\u0628\u0627",
+  items: [{ name: "\u0627\u0644\u0623\u0648\u0644" }],
 });
-assert.deepEqual(input.title, { en: "Hello", ar: "مرحبا" });
+assert.deepEqual(input.title, { en: "Hello", ar: "\u0645\u0631\u062d\u0628\u0627" });
 
 const strict = createLocalizer({
   supportedLanguages: ["en", "ar"],

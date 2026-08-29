@@ -49,26 +49,16 @@ func run() error {
 		return err
 	}
 	files := [][2]string{
-		{filepath.Join(root, "bindings", "node", "index.js"), filepath.Join(destination, "index.js")},
-		{filepath.Join(root, "bindings", "node", "index.d.ts"), filepath.Join(destination, "index.d.ts")},
 		{wasmExec, filepath.Join(destination, "wasm_exec.js")},
 		{filepath.Join(runtime.GOROOT(), "LICENSE"), filepath.Join(destination, "GO-LICENSE")},
 	}
-	for _, name := range []string{
-		"shared.js",
-		"framework.js", "framework.d.ts",
-		"express.js", "express.d.ts",
-		"nest.js", "nest.d.ts",
-		"fastify.js", "fastify.d.ts",
-		"koa.js", "koa.d.ts",
-	} {
-		files = append(files, [2]string{
-			filepath.Join(root, "bindings", "node", "adapters", name),
-			filepath.Join(destination, "adapters", name),
-		})
-	}
 	for _, file := range files {
 		if err := copyFile(file[0], file[1]); err != nil {
+			return err
+		}
+	}
+	for name, contents := range generatedFiles() {
+		if err := writeFile(filepath.Join(destination, filepath.FromSlash(name)), contents); err != nil {
 			return err
 		}
 	}
@@ -141,4 +131,14 @@ func copyFile(source, destination string) error {
 		return err
 	}
 	return output.Close()
+}
+
+func writeFile(destination, contents string) error {
+	if err := os.MkdirAll(filepath.Dir(destination), 0o755); err != nil {
+		return err
+	}
+	if err := os.WriteFile(destination, []byte(contents), 0o644); err != nil {
+		return fmt.Errorf("write %s: %w", destination, err)
+	}
+	return nil
 }

@@ -1,4 +1,4 @@
-package localizer
+package local
 
 import (
 	"encoding/json"
@@ -7,6 +7,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/elrefai99/data-localizer/internal/lang"
+	langUse "github.com/elrefai99/data-localizer/internal/lang"
 )
 
 type Localizer struct {
@@ -20,13 +23,13 @@ type Localizer struct {
 func New(options Options) (*Localizer, error) {
 	languages := options.SupportedLanguages
 	if len(languages) == 0 {
-		languages = defaultLanguages
+		languages = langUse.Default_Languages
 	}
 
 	supported := make(map[string]struct{}, len(languages))
 	for _, language := range languages {
-		normalized := NormalizeLanguageTag(language)
-		if !validLanguageTag(normalized) || normalized == "*" {
+		normalized := langUse.NormalizeLanguageTag(language)
+		if !langUse.ValidLanguageTag(normalized) || normalized == "*" {
 			return nil, &ConfigurationError{Field: "SupportedLanguages", Message: fmt.Sprintf("invalid language tag %q", language)}
 		}
 		supported[normalized] = struct{}{}
@@ -35,7 +38,7 @@ func New(options Options) (*Localizer, error) {
 		return nil, &ConfigurationError{Field: "SupportedLanguages", Message: "must contain at least one language"}
 	}
 
-	primaryFallback := NormalizeLanguageTag(options.FallbackLanguage)
+	primaryFallback := lang.NormalizeLanguageTag(options.FallbackLanguage)
 	if primaryFallback == "" {
 		if _, hasEnglish := supported["en"]; hasEnglish {
 			primaryFallback = "en"
@@ -51,7 +54,7 @@ func New(options Options) (*Localizer, error) {
 
 	fallbacks := make([]string, 0, 1+len(options.FallbackLanguages))
 	for _, fallback := range append([]string{primaryFallback}, options.FallbackLanguages...) {
-		normalized := NormalizeLanguageTag(fallback)
+		normalized := lang.NormalizeLanguageTag(fallback)
 		if _, exists := supported[normalized]; !exists {
 			return nil, &ConfigurationError{Field: "FallbackLanguages", Message: fmt.Sprintf("unsupported language %q", fallback)}
 		}
@@ -94,7 +97,7 @@ func Localize(data any, languageHeader string, fallbackLanguage ...string) (any,
 }
 
 func (l *Localizer) Localize(data any, languageHeader string) (any, error) {
-	candidates, requested := negotiate(languageHeader, l.supported, l.fallbacks)
+	candidates, requested := lang.Negotiate(languageHeader, l.supported, l.fallbacks)
 	state := walkState{active: make(map[visit]string)}
 	return l.walk(reflect.ValueOf(data), "$", requested, candidates, &state)
 }
@@ -197,7 +200,7 @@ func (l *Localizer) isTranslationMap(value TranslationMap, context Context) bool
 	}
 	seen := make(map[string]struct{}, len(value))
 	for language, translation := range value {
-		normalized := NormalizeLanguageTag(language)
+		normalized := lang.NormalizeLanguageTag(language)
 		if _, exists := l.supported[normalized]; !exists || !isTranslationLeaf(translation) {
 			return false
 		}
@@ -227,7 +230,7 @@ func isTranslationLeaf(value any) bool {
 func (l *Localizer) resolve(value TranslationMap, context Context) (any, error) {
 	entries := make(map[string]any, len(value))
 	for language, translation := range value {
-		entries[NormalizeLanguageTag(language)] = translation
+		entries[lang.NormalizeLanguageTag(language)] = translation
 	}
 	for _, language := range context.AttemptedLanguages {
 		if translation, exists := entries[language]; exists && translation != nil {

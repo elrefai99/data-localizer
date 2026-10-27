@@ -1,4 +1,4 @@
-package localizer
+package lang
 
 import (
 	"reflect"
@@ -34,7 +34,7 @@ func TestNormalizeLanguageTag(t *testing.T) {
 
 func TestNegotiateUsesExactBaseAndFallbackLanguages(t *testing.T) {
 	supported := map[string]struct{}{"fr-ca": {}, "fr": {}, "en": {}, "ar": {}}
-	got, requested := negotiate("fr-CA;q=0.9,ar;q=0.5", supported, []string{"en"})
+	got, requested := Negotiate("fr-CA;q=0.9,ar;q=0.5", supported, []string{"en"})
 	want := []string{"fr-ca", "fr", "ar", "en"}
 	if requested != "fr-ca" || !reflect.DeepEqual(got, want) {
 		t.Fatalf("negotiate() = %#v, %q; want %#v, fr-ca", got, requested, want)

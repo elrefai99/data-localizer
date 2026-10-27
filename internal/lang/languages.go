@@ -1,6 +1,6 @@
-package localizer
+package lang
 
-var defaultLanguages = []string{
+var Default_Languages = []string{
 	"aa",
 	"ab",
 	"ae",
@@ -188,5 +188,5 @@ var defaultLanguages = []string{
 }
 
 func DefaultLanguages() []string {
-	return append([]string(nil), defaultLanguages...)
+	return append([]string(nil), Default_Languages...)
 }

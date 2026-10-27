@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	localizer "github.com/elrefai99/data-localizer"
+	"github.com/elrefai99/data-localizer/internal/local"
 )
 
 func main() {
@@ -48,11 +48,11 @@ func run(arguments []string, stdin io.Reader, stdout io.Writer) error {
 	if err != nil {
 		return err
 	}
-	options := localizer.Options{FallbackLanguage: *fallback, MissingTranslation: policy}
+	options := local.Options{FallbackLanguage: *fallback, MissingTranslation: policy}
 	if strings.TrimSpace(*supported) != "" {
 		options.SupportedLanguages = splitList(*supported)
 	}
-	engine, err := localizer.New(options)
+	engine, err := local.New(options)
 	if err != nil {
 		return err
 	}
@@ -83,16 +83,16 @@ func run(arguments []string, stdin io.Reader, stdout io.Writer) error {
 	return encoder.Encode(result)
 }
 
-func parsePolicy(value string) (localizer.MissingTranslationPolicy, error) {
+func parsePolicy(value string) (local.MissingTranslationPolicy, error) {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "preserve":
-		return localizer.MissingPreserve, nil
+		return local.MissingPreserve, nil
 	case "empty":
-		return localizer.MissingEmpty, nil
+		return local.MissingEmpty, nil
 	case "null":
-		return localizer.MissingNull, nil
+		return local.MissingNull, nil
 	case "error":
-		return localizer.MissingError, nil
+		return local.MissingError, nil
 	default:
 		return 0, fmt.Errorf("unknown missing policy %q", value)
 	}

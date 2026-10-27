@@ -1,4 +1,4 @@
-package localizer
+package local
 
 import (
 	"errors"

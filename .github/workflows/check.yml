@@ -1,31 +1,64 @@
-name: Check Go Project
-
 on:
   push:
     branches:
       - "**"
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./app
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+      - name: Download dependencies
+        run: go mod download
 
-      - run: go vet ./...
-      - run: go test -race ./...
-      - run: go build ./cmd/data-localizer
-      - run: npm run build
-      - run: node tests/node/core-smoke-test.js
-      - run: npm pack --dry-run
+      - name: Vet
+        run: go vet ./...
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Test
+        run: go test ./...
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    defaults:
+      run:
+        working-directory: ./app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build ./...

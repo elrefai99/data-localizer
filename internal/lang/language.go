@@ -1,4 +1,4 @@
-package localizer
+package lang
 
 import (
 	"sort"
@@ -16,7 +16,7 @@ func NormalizeLanguageTag(tag string) string {
 	return strings.ToLower(strings.ReplaceAll(strings.TrimSpace(tag), "_", "-"))
 }
 
-func validLanguageTag(tag string) bool {
+func ValidLanguageTag(tag string) bool {
 	if tag == "*" {
 		return true
 	}
@@ -48,7 +48,7 @@ func ParseAcceptLanguage(header string) []LanguagePreference {
 	for order, rawEntry := range strings.Split(header, ",") {
 		parts := strings.Split(rawEntry, ";")
 		tag := NormalizeLanguageTag(parts[0])
-		if !validLanguageTag(tag) {
+		if !ValidLanguageTag(tag) {
 			continue
 		}
 
@@ -102,7 +102,7 @@ func onlyDigits(value string) bool {
 	return true
 }
 
-func negotiate(header string, supported map[string]struct{}, fallbacks []string) ([]string, string) {
+func Negotiate(header string, supported map[string]struct{}, fallbacks []string) ([]string, string) {
 	preferences := ParseAcceptLanguage(header)
 	candidates := make([]string, 0, len(preferences)+len(fallbacks))
 	requested := ""

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall/js"
 
-	localizer "github.com/elrefai99/data-localizer"
+	"github.com/elrefai99/data-localizer/internal/local"
 )
 
 type bridge struct {
@@ -23,7 +23,7 @@ type bridge struct {
 
 type requestLocalizer struct {
 	bridge             *bridge
-	engine             *localizer.Localizer
+	engine             *local.Localizer
 	readLanguage       js.Value
 	localizeForRequest js.Value
 }
@@ -70,7 +70,7 @@ func (b *bridge) localize(_ js.Value, arguments []js.Value) any {
 		}
 		header := stringArgument(arguments, 1, "")
 		fallback := stringArgument(arguments, 2, "en")
-		result, err := localizer.Localize(data, header, fallback)
+		result, err := local.Localize(data, header, fallback)
 		return b.result(result, err)
 	})
 }
@@ -89,7 +89,7 @@ func (b *bridge) createLocalizer(_ js.Value, arguments []js.Value) any {
 	})
 }
 
-func (b *bridge) localizeWith(engine *localizer.Localizer, arguments []js.Value) any {
+func (b *bridge) localizeWith(engine *local.Localizer, arguments []js.Value) any {
 	return b.safely(func() any {
 		if len(arguments) == 0 {
 			return b.typeError("data must be JSON-compatible")
@@ -103,12 +103,12 @@ func (b *bridge) localizeWith(engine *localizer.Localizer, arguments []js.Value)
 	})
 }
 
-func newLocalizer(options js.Value) (*localizer.Localizer, error) {
+func newLocalizer(options js.Value) (*local.Localizer, error) {
 	if isNullish(options) {
-		return localizer.New(localizer.Options{})
+		return local.New(local.Options{})
 	}
 	if options.Type() != js.TypeObject {
-		return nil, &localizer.ConfigurationError{Field: "Options", Message: "must be an object"}
+		return nil, &local.ConfigurationError{Field: "Options", Message: "must be an object"}
 	}
 	supported, err := stringSliceProperty(options, "supportedLanguages")
 	if err != nil {
@@ -122,7 +122,7 @@ func newLocalizer(options js.Value) (*localizer.Localizer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return localizer.New(localizer.Options{
+	return local.New(local.Options{
 		SupportedLanguages: supported,
 		FallbackLanguage:   stringProperty(options, "fallbackLanguage"),
 		FallbackLanguages:  fallbacks,
@@ -130,18 +130,18 @@ func newLocalizer(options js.Value) (*localizer.Localizer, error) {
 	})
 }
 
-func parsePolicy(value string) (localizer.MissingTranslationPolicy, error) {
+func parsePolicy(value string) (local.MissingTranslationPolicy, error) {
 	switch value {
 	case "", "preserve":
-		return localizer.MissingPreserve, nil
+		return local.MissingPreserve, nil
 	case "empty":
-		return localizer.MissingEmpty, nil
+		return local.MissingEmpty, nil
 	case "null":
-		return localizer.MissingNull, nil
+		return local.MissingNull, nil
 	case "error":
-		return localizer.MissingError, nil
+		return local.MissingError, nil
 	default:
-		return 0, &localizer.ConfigurationError{Field: "MissingTranslation", Message: "unknown policy " + value}
+		return 0, &local.ConfigurationError{Field: "MissingTranslation", Message: "unknown policy " + value}
 	}
 }
 
@@ -154,7 +154,7 @@ func (b *bridge) newRequestLocalizer(options js.Value) (*requestLocalizer, error
 	if !isNullish(options) {
 		readLanguage = options.Get("getLanguageHeader")
 		if !isNullish(readLanguage) && readLanguage.Type() != js.TypeFunction {
-			return nil, &localizer.ConfigurationError{Field: "getLanguageHeader", Message: "must be a function"}
+			return nil, &local.ConfigurationError{Field: "getLanguageHeader", Message: "must be a function"}
 		}
 	}
 	result := &requestLocalizer{bridge: b, engine: engine, readLanguage: readLanguage}
@@ -274,9 +274,9 @@ func (b *bridge) result(value any, err error) any {
 
 func (b *bridge) errorValue(err error) js.Value {
 	constructor := b.dataLocalizerError
-	var configuration *localizer.ConfigurationError
-	var missing *localizer.MissingTranslationError
-	var cycle *localizer.CycleError
+	var configuration *local.ConfigurationError
+	var missing *local.MissingTranslationError
+	var cycle *local.CycleError
 	switch {
 	case errors.As(err, &configuration):
 		constructor = b.configurationError
@@ -370,12 +370,12 @@ func stringSliceProperty(value js.Value, name string) ([]string, error) {
 		return nil, nil
 	}
 	if !js.Global().Get("Array").Call("isArray", property).Bool() {
-		return nil, &localizer.ConfigurationError{Field: name, Message: "must be an array of strings"}
+		return nil, &local.ConfigurationError{Field: name, Message: "must be an array of strings"}
 	}
 	result := make([]string, property.Length())
 	for index := range result {
 		if property.Index(index).Type() != js.TypeString {
-			return nil, &localizer.ConfigurationError{Field: name, Message: "must be an array of strings"}
+			return nil, &local.ConfigurationError{Field: name, Message: "must be an array of strings"}
 		}
 		result[index] = property.Index(index).String()
 	}
